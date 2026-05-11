@@ -1,0 +1,89 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]: Lux Engine
+          - generic [ref=e8]: Luxury Marketing
+        - button "Sign In" [ref=e10]
+    - main [ref=e11]:
+      - generic [ref=e13]:
+        - paragraph [ref=e16]: Real Estate Marketing Platform
+        - generic [ref=e17]:
+          - heading "Your Listings. Elevated." [level=1] [ref=e18]:
+            - text: Your Listings.
+            - text: Elevated.
+          - paragraph [ref=e19]: From MLS data to a live luxury property website in under two minutes. No IDX subscription required. AI-generated copy. Hosted and managed for you.
+        - generic [ref=e20]:
+          - button "Get Started — $1,200 / yr" [ref=e21]
+          - button "Sign In" [ref=e22]
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - paragraph [ref=e25]: "01"
+            - paragraph [ref=e26]: IDX Data Included
+            - paragraph [ref=e27]: No separate subscription
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: "02"
+            - paragraph [ref=e30]: AI Copy — 3 Styles
+            - paragraph [ref=e31]: Romantic · Investor · Family
+          - generic [ref=e32]:
+            - paragraph [ref=e33]: "03"
+            - paragraph [ref=e34]: Live in < 2 Min
+            - paragraph [ref=e35]: Enter ID, click Launch
+  - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
+    - img [ref=e42]
+  - alert [ref=e45]
+  - dialog [ref=e48]:
+    - generic [ref=e122]:
+      - generic [ref=e123]:
+        - button "Close modal" [ref=e124] [cursor=pointer]:
+          - img [ref=e125]
+        - generic [ref=e128]:
+          - heading "Create your account" [level=1] [ref=e129]
+          - paragraph [ref=e130]: Welcome! Please fill in the details to get started.
+        - generic [ref=e131]:
+          - button "Sign in with Google Continue with Google" [ref=e134] [cursor=pointer]:
+            - generic [ref=e135]:
+              - img "Sign in with Google" [ref=e137]
+              - generic [ref=e138]: Continue with Google
+          - paragraph [ref=e141]: or
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - generic [ref=e149]: First name
+                    - generic [ref=e150]: Optional
+                  - textbox "First name" [ref=e151]
+                - generic [ref=e154]:
+                  - generic [ref=e155]:
+                    - generic [ref=e156]: Last name
+                    - generic [ref=e157]: Optional
+                  - textbox "Last name" [ref=e158]
+              - generic [ref=e162]:
+                - generic [ref=e164]: Email address
+                - textbox "Email address" [ref=e165]:
+                  - /placeholder: Enter your email address
+              - generic [ref=e169]:
+                - generic [ref=e171]: Password
+                - generic [ref=e172]:
+                  - textbox "Password" [ref=e173]:
+                    - /placeholder: Enter your password
+                  - button "Show password" [ref=e174] [cursor=pointer]:
+                    - img [ref=e175]
+            - button "Continue" [ref=e181] [cursor=pointer]:
+              - generic [ref=e182]:
+                - text: Continue
+                - img [ref=e183]
+      - generic [ref=e185]:
+        - generic [ref=e186]:
+          - generic [ref=e187]: Already have an account?
+          - link "Sign in" [ref=e188] [cursor=pointer]:
+            - /url: http://localhost:3000/CLERK-ROUTER/VIRTUAL/sign-in
+        - generic [ref=e190]:
+          - generic [ref=e192]:
+            - paragraph [ref=e193]: Secured by
+            - link "Clerk logo" [ref=e194] [cursor=pointer]:
+              - /url: https://go.clerk.com/components
+              - img [ref=e195]
+          - paragraph [ref=e200]: Development mode

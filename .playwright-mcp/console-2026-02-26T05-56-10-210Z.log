@@ -1,0 +1,33 @@
+[    2841ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[  610722ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[ 2267685ms] [ERROR] ./app/page.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[D:\LuxEngine\lux-engine\app\page.tsx:268:1]
+ 265 |       )}
+ 266 |     </div>
+ 267 |   );
+ 268 | }
+     : ^
+ 269 | 
+ 270 | function EmptyInventory({ onSync, syncing }: { onSync: () => void; syncing: boolean }) {
+ 271 |   return (
+     `----
+  x Expected '</', got ':'
+     ,-[D:\LuxEngine\lux-engine\app\page.tsx:270:1]
+ 267 |   );
+ 268 | }
+ 269 | 
+ 270 | function EmptyInventory({ onSync, syncing }: { onSync: () => void; syncing: boolean }) {
+     :                                                      ^
+ 271 |   return (
+ 272 |     <div className="flex flex-col items-center justify-center min-h-[50vh] gap-8 text-center py-20">
+ 273 |       <div className="flex flex-col items-center gap-3">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:51
+[ 2304934ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/demo?_rsc=ne2nb:0
+[ 2315912ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27

@@ -1,0 +1,35 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]: Lux Engine
+          - generic [ref=e8]: Luxury Marketing
+        - button "Sign In" [ref=e10]
+    - main [ref=e11]:
+      - generic [ref=e13]:
+        - paragraph [ref=e16]: Real Estate Marketing Platform
+        - generic [ref=e17]:
+          - heading "Your Listings. Elevated." [level=1] [ref=e18]:
+            - text: Your Listings.
+            - text: Elevated.
+          - paragraph [ref=e19]: From MLS data to a live luxury property website in under two minutes. No IDX subscription required. AI-generated copy. Hosted and managed for you.
+        - generic [ref=e20]:
+          - button "Get Started — $1,200 / yr" [ref=e21]
+          - button "Sign In" [ref=e22]
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - paragraph [ref=e25]: "01"
+            - paragraph [ref=e26]: IDX Data Included
+            - paragraph [ref=e27]: No separate subscription
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: "02"
+            - paragraph [ref=e30]: AI Copy — 3 Styles
+            - paragraph [ref=e31]: Romantic · Investor · Family
+          - generic [ref=e32]:
+            - paragraph [ref=e33]: "03"
+            - paragraph [ref=e34]: Live in < 2 Min
+            - paragraph [ref=e35]: Enter ID, click Launch
+  - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
+    - img [ref=e42]
+  - alert [ref=e45]
