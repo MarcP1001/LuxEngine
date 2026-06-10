@@ -1,0 +1,16 @@
+[Unit]
+Description=Free Claude Code Proxy Service
+After=network.target
+
+[Service]
+Type=simple
+User=fcc
+WorkingDirectory=/opt/free-claude-code
+EnvironmentFile=/etc/free-claude-code/.env
+ExecStart=/opt/free-claude-code/.venv/bin/free-claude-code
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

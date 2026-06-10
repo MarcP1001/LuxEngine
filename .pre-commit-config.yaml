@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Keep version in sync with local ruff installation in pyproject.toml
+    rev: v0.15.15
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      # Run the Ty static type checker locally
+      - id: ty-check
+        name: ty check
+        entry: ty check
+        language: system
+        types: [python]
+        pass_filenames: false
