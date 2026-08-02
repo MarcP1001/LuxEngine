@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color palette */
+  --color-obsidian: #1a1a1a;
+  --color-obsidian-deep: #111111;
+  --color-surface: #1e1e1e;
+  --color-surface-raised: #252525;
+  --color-surface-border: #6b6f71;
+  --color-gunmetal: #a0a4a6;
+  --color-gunmetal-light: #c3c5c6;
+  --color-sulfur: #f2ff00;
+  --color-sulfur-dim: #c8d400;
+  --color-cinnabar: #e96812;
+  --color-cinnabar-dark: #f47b2a;
+  --color-white: #ffffff;
+  --color-cream: #f5f0e8;
+  --color-muted: #a0a4a6;
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-playfair: var(--font-playfair);
+  --font-cormorant: var(--font-cormorant);
+}
+
+:root {
+  --background: #1a1a1a;
+  --foreground: #ebebeb;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 9999;
+  transform: translateY(-200%);
+  background: #f2ff00;
+  color: #111111;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+*:focus-visible {
+  outline: 3px solid #f2ff00 !important;
+  outline-offset: 3px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #a0a4a6;
+  opacity: 1;
+}
+
+select {
+  color: var(--foreground);
+}
+
+/*
+ * Cinnabar is bright enough to work as text on dark surfaces. When it is
+ * used as a filled control, dark text provides the accessible contrast.
+ */
+.bg-cinnabar,
+.bg-cinnabar-dark,
+.hover\:bg-cinnabar:hover,
+.hover\:bg-cinnabar-dark:hover {
+  color: #111111 !important;
+}
+
+/* Thin luxury scrollbar */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e2e2e;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f2ff00;
+}
+
+/* Smooth image zoom on hover */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.img-zoom:hover img {
+  transform: scale(1.06);
+}
+
+/* Luxury card hover glow */
+.card-luxury {
+  transition:
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.card-luxury:hover {
+  border-color: rgba(242, 255, 0, 0.15);
+  box-shadow:
+    0 0 0 1px rgba(242, 255, 0, 0.06),
+    0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+/* Animate underline for links */
+.underline-luxury {
+  position: relative;
+}
+.underline-luxury::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #f2ff00;
+  transition: width 0.3s ease;
+}
+.underline-luxury:hover::after {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
