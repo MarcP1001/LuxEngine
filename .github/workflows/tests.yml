@@ -49,3 +49,44 @@ jobs:
 
       - name: Run tests
         run: uv run pytest -v --tb=short
+
+  web-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_CONVEX_URL: https://ci-placeholder.convex.cloud
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2ktcGxhY2Vob2xkZXIuZXhhbXBsZS5jb20k
+      CLERK_SECRET_KEY: sk_test_ci-placeholder
+      LUXENGINE_PLATFORM_HOSTS: luxengine.io,www.luxengine.io
+      NEXT_PUBLIC_CANONICAL_HOST: luxengine.io
+    defaults:
+      run:
+        working-directory: lux-engine
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 1
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lux-engine/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Block critical production dependency vulnerabilities
+        run: npm audit --omit=dev --audit-level=critical
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build

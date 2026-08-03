@@ -1,16 +1,25 @@
 [Unit]
 Description=Free Claude Code Proxy Service
-After=network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
-User=fcc
-WorkingDirectory=/opt/free-claude-code
-EnvironmentFile=/etc/free-claude-code/.env
-ExecStart=/opt/free-claude-code/.venv/bin/free-claude-code
-Restart=always
+User=luxengine
+Group=luxengine
+WorkingDirectory=/opt/luxengine
+Environment=HOST=127.0.0.1
+Environment=PORT=8082
+Environment=HOME=/var/lib/luxengine/service-home
+EnvironmentFile=/etc/luxengine/proxy.env
+ExecStart=/opt/luxengine/.venv/bin/free-claude-code
+Restart=on-failure
 RestartSec=5
+TimeoutStopSec=30
 LimitNOFILE=65536
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
 
 [Install]
 WantedBy=multi-user.target
