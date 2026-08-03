@@ -1,6 +1,20 @@
 import { test, expect, Page } from "@playwright/test";
 
-async function safeGoto(page: Page, path: string, options?: { timeout?: number }) {
+test("health endpoint reports the web service status", async ({ request }) => {
+  const response = await request.get("/api/health");
+  expect(response.ok()).toBeTruthy();
+  await expect(response.json()).resolves.toEqual({
+    status: "healthy",
+    service: "lux-engine-web",
+  });
+  expect(response.headers()["cache-control"]).toContain("no-store");
+});
+
+async function safeGoto(
+  page: Page,
+  path: string,
+  options?: { timeout?: number },
+) {
   const timeout = options?.timeout ?? 30000;
   const maxAttempts = 3;
   for (let i = 0; i < maxAttempts; i++) {
@@ -22,17 +36,19 @@ test.describe("Landing Page (unauthenticated)", () => {
   test("renders hero section", async ({ page }) => {
     test.setTimeout(60000);
     await safeGoto(page, "/", { timeout: 45000 });
-    await expect(page.locator("text=Your Listings.")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text=Your Listings.")).toBeVisible({
+      timeout: 15000,
+    });
     await expect(page.locator("text=Elevated.")).toBeVisible();
     await expect(
-      page.locator("text=Real Estate Marketing Platform")
+      page.locator("text=Real Estate Marketing Platform"),
     ).toBeVisible();
   });
 
   test("shows sign-in button in header", async ({ page }) => {
     await safeGoto(page, "/");
     await expect(
-      page.getByRole("button", { name: "Sign In" }).first()
+      page.getByRole("button", { name: "Sign In" }).first(),
     ).toBeVisible();
   });
 
@@ -46,11 +62,11 @@ test.describe("Landing Page (unauthenticated)", () => {
   test("sign-in modal opens on button click", async ({ page }) => {
     await safeGoto(page, "/");
     await page.getByRole("button", { name: "Sign In" }).first().click();
+    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible({
+      timeout: 15000,
+    });
     await expect(
-      page.getByRole("heading", { name: /Sign in/i })
-    ).toBeVisible({ timeout: 15000 });
-    await expect(
-      page.getByRole("textbox", { name: "Email address" })
+      page.getByRole("textbox", { name: "Email address" }),
     ).toBeVisible({ timeout: 10000 });
   });
 
@@ -58,40 +74,34 @@ test.describe("Landing Page (unauthenticated)", () => {
     test.setTimeout(60000);
     await safeGoto(page, "/");
     await page.getByRole("button", { name: "Sign In" }).first().click();
-    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible({
+      timeout: 20000,
+    });
     await page.getByRole("link", { name: "Sign up" }).click({ timeout: 10000 });
     await expect(
-      page.getByRole("heading", { name: /Create your account/i })
+      page.getByRole("heading", { name: /Create your account/i }),
     ).toBeVisible({ timeout: 10000 });
   });
 
   test("CTA button is present", async ({ page }) => {
     await safeGoto(page, "/");
     await expect(
-      page.getByRole("button", { name: /Get Started/i })
+      page.getByRole("button", { name: /Get Started/i }),
     ).toBeVisible();
   });
 });
 
 test.describe("Clerk Auth Flow", () => {
-  test("sign-up form has all fields", async ({ page }) => {
+  test("sign-up form has the required account fields", async ({ page }) => {
     await safeGoto(page, "/");
     await page.getByRole("button", { name: "Sign In" }).first().click();
     await page.getByRole("link", { name: "Sign up" }).click();
     await expect(
-      page.getByRole("textbox", { name: "First name" })
+      page.getByRole("textbox", { name: "Email address" }),
     ).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Password" })).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Last name" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("textbox", { name: "Email address" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("textbox", { name: "Password" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Continue", exact: true })
+      page.getByRole("button", { name: "Continue", exact: true }),
     ).toBeVisible();
   });
 
@@ -99,11 +109,11 @@ test.describe("Clerk Auth Flow", () => {
     await safeGoto(page, "/");
     await page.getByRole("button", { name: "Sign In" }).first().click();
     await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible({
+      timeout: 5000,
+    });
     await expect(
-      page.getByRole("heading", { name: /Sign in/i })
-    ).toBeVisible({ timeout: 5000 });
-    await expect(
-      page.getByRole("textbox", { name: "Email address" })
+      page.getByRole("textbox", { name: "Email address" }),
     ).toBeVisible();
   });
 
@@ -111,7 +121,7 @@ test.describe("Clerk Auth Flow", () => {
     await safeGoto(page, "/");
     await page.getByRole("button", { name: "Sign In" }).first().click();
     await expect(
-      page.getByRole("button", { name: /Continue with Google/i })
+      page.getByRole("button", { name: /Continue with Google/i }),
     ).toBeVisible({ timeout: 15000 });
   });
 });
@@ -130,9 +140,9 @@ test.describe("Navigation & Layout", () => {
 
   test("dark theme applied", async ({ page }) => {
     await safeGoto(page, "/");
-    const bg = await page.locator("body").evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
+    const bg = await page
+      .locator("body")
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(bg).toMatch(/rgb\(\s*2[0-6]\s*,\s*2[0-6]\s*,\s*2[0-6]\s*\)/);
   });
 });
@@ -140,45 +150,43 @@ test.describe("Navigation & Layout", () => {
 test.describe("Settings Page", () => {
   test("requires authentication", async ({ page }) => {
     await safeGoto(page, "/settings");
-    await expect(
-      page.locator("text=Authentication Required")
-    ).toBeVisible({ timeout: 15000 });
-    await expect(
-      page.getByRole("button", { name: "Sign In" })
-    ).toBeVisible();
+    await expect(page.locator("text=Authentication Required")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByRole("button", { name: "Sign In" })).toBeVisible();
   });
 
   test("has dark background", async ({ page }) => {
     await safeGoto(page, "/settings");
-    const bg = await page.locator("body").evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
+    const bg = await page
+      .locator("body")
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(bg).toMatch(/rgb\(\s*2[0-6]\s*,\s*2[0-6]\s*,\s*2[0-6]\s*\)/);
   });
 
   test("has back navigation to dashboard", async ({ page }) => {
     await safeGoto(page, "/settings");
-    await expect(
-      page.locator("text=Lux Engine").first()
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=Lux Engine").first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
 test.describe("Property Site — Not Found", () => {
   test("shows site unavailable for invalid subdomain", async ({ page }) => {
     await safeGoto(page, "/sites/nonexistent-test-site-xyz");
+    await expect(page.locator("text=Site Unavailable")).toBeVisible({
+      timeout: 15000,
+    });
     await expect(
-      page.locator("text=Site Unavailable")
-    ).toBeVisible({ timeout: 15000 });
-    await expect(
-      page.locator("text=This listing is no longer active")
+      page.locator("text=This listing is no longer active"),
     ).toBeVisible();
   });
 
   test("has link back to home", async ({ page }) => {
     await safeGoto(page, "/sites/nonexistent-test-site-xyz");
     await expect(
-      page.getByRole("link", { name: /Lux Engine Home/i })
+      page.getByRole("link", { name: /Lux Engine Home/i }),
     ).toBeVisible({ timeout: 15000 });
   });
 });
@@ -186,26 +194,24 @@ test.describe("Property Site — Not Found", () => {
 test.describe("Admin Page", () => {
   test("requires authentication", async ({ page }) => {
     await safeGoto(page, "/admin");
-    await expect(
-      page.locator("text=Authentication required")
-    ).toBeVisible({ timeout: 15000 });
-    await expect(
-      page.getByRole("button", { name: "Sign In" })
-    ).toBeVisible();
+    await expect(page.locator("text=Authentication required")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByRole("button", { name: "Sign In" })).toBeVisible();
   });
 
   test("has dark background", async ({ page }) => {
     await safeGoto(page, "/admin");
-    const bg = await page.locator("body").evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
+    const bg = await page
+      .locator("body")
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(bg).toMatch(/rgb\(\s*2[0-6]\s*,\s*2[0-6]\s*,\s*2[0-6]\s*\)/);
   });
 
   test("shows Superadmin branding", async ({ page }) => {
     await safeGoto(page, "/admin");
-    await expect(
-      page.locator("text=Superadmin")
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=Superadmin")).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

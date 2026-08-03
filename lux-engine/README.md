@@ -47,6 +47,10 @@ The application must sit behind an HTTPS reverse proxy. See
 units, environment variables, firewall rules, Nginx configuration, and
 verification steps.
 
+The repository-level Hostinger guide deploys both this web application and the
+Python proxy service. The included `/api/health` endpoint is intended for local
+service checks and reverse-proxy monitoring.
+
 Custom-domain routing is implemented in the application, but every customer
 domain also needs a valid TLS certificate at the reverse proxy. Do not enable
 custom domains publicly until automated certificate issuance is configured.

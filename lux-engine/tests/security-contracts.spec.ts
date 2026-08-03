@@ -75,3 +75,21 @@ test("Docker installs only after every required package input is copied", () => 
   expect(installPosition).toBeGreaterThan(dockerfile.indexOf("COPY providers"));
   expect(dockerfile).not.toContain("pip install --no-cache-dir -e .");
 });
+
+test("Hostinger services stay behind the TLS reverse proxy", () => {
+  const webService = source("../deploy/lux-engine-web.service");
+  const proxyService = source("../deploy/free-claude-code.service");
+  const nginx = source("../deploy/nginx-luxengine.conf");
+  const guide = source("../deploy/hostinger-kvm2.md");
+
+  expect(webService).toContain("start --hostname 127.0.0.1 --port 3000");
+  expect(proxyService).toContain("Environment=HOST=127.0.0.1");
+  expect(nginx).toContain("server_name luxengine.io www.luxengine.io;");
+  expect(nginx).toContain("server_name proxy.luxengine.io;");
+  expect(nginx).toContain("proxy_pass http://127.0.0.1:3000;");
+  expect(nginx).toContain("proxy_pass http://127.0.0.1:8082;");
+  expect(guide).toContain("Do not add rules for 3000 or 8082.");
+
+  const updater = source("../deploy/update-hostinger.sh");
+  expect(updater).toContain("npm audit --omit=dev --audit-level=critical");
+});
