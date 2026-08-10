@@ -102,6 +102,8 @@ jobs:
       NEXT_PUBLIC_CANONICAL_HOST: luxengine.io
       WEB_ENV_FILE: /dev/null
       PROXY_ENV_FILE: /dev/null
+      PROXY_NETWORK: luxengine-edge
+      TRAEFIK_CERTRESOLVER: mytlschallenge
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
@@ -110,7 +112,12 @@ jobs:
           fetch-depth: 1
 
       - name: Validate Docker Compose
-        run: docker compose --file deploy/compose.yml config --quiet
+        run: |
+          docker compose --file deploy/compose.yml config --quiet
+          docker compose \
+            --file deploy/compose.yml \
+            --file deploy/compose.proxy-network.yml \
+            config --quiet
 
       - name: Build web image
         run: |

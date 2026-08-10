@@ -102,6 +102,11 @@ test("Hostinger containers stay behind the TLS reverse proxy", () => {
     "Do not combine the n8n and LuxEngine Compose files.",
   );
   expect(guide).toContain("This guide does not assume or install Caddy.");
+  expect(guide).toContain(
+    "Do not attach LuxEngine to an application project's default network",
+  );
+  expect(guide).toContain("PROXY_NETWORK=luxengine-edge");
+  expect(guide).toContain("TRAEFIK_CERTRESOLVER=mytlschallenge");
   expect(guide).toContain("do not add public rules for 3000 or 8082");
 
   const updater = source("../deploy/update-hostinger.sh");

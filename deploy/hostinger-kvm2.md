@@ -196,41 +196,78 @@ Continue to step 11, then configure Nginx in step 13A.
 
 ### Path B: Hostinger Traefik or Nginx Proxy Manager owns ports 80/443
 
-Find the external Docker network used by that reverse proxy:
+Do not attach LuxEngine to an application project's default network such as `root_default`. Hostinger's n8n update procedure uses `docker compose down`; an unrelated LuxEngine endpoint on that network would prevent Compose from removing it.
+
+Create a dedicated external edge network instead:
 
 ```bash
-sudo docker inspect REVERSE_PROXY_CONTAINER \
+sudo docker network inspect luxengine-edge >/dev/null 2>&1 \
+  || sudo docker network create luxengine-edge
+```
+
+Back up the existing proxy Compose file. For the Hostinger n8n template shown in this guide:
+
+```bash
+sudo cp -a /root/docker-compose.yml \
+  "/root/docker-compose.yml.before-luxengine.$(date +%Y%m%d-%H%M%S)"
+sudoedit /root/docker-compose.yml
+```
+
+Add the external network to the existing `traefik` service without changing its ports, volumes, command, or n8n service:
+
+```yaml
+services:
+  traefik:
+    # Keep all existing Traefik settings.
+    networks:
+      - default
+      - luxengine-edge
+```
+
+Merge this into the single top-level `networks` section at the bottom of the file. Do not create a second `networks` key:
+
+```yaml
+networks:
+  default:
+  luxengine-edge:
+    external: true
+```
+
+Validate before applying. `up -d` recreates Traefik if required but does not run `down` or remove n8n:
+
+```bash
+sudo docker compose --file /root/docker-compose.yml config --quiet
+sudo docker compose --file /root/docker-compose.yml up --detach
+sudo docker inspect root-traefik-1 \
+  --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}'
+sudo docker inspect root-n8n-1 \
   --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}'
 ```
 
-Choose the proxy's existing network, then create:
+Traefik should list both `root_default` and `luxengine-edge`; n8n should list only `root_default`.
+
+Create the LuxEngine proxy-network environment file:
 
 ```bash
 sudo install -m 0640 -o root -g luxengine /dev/null /etc/luxengine/proxy-network.env
 sudoedit /etc/luxengine/proxy-network.env
 ```
 
-Add exactly one line:
+For the verified Hostinger n8n template values, add:
 
 ```text
-PROXY_NETWORK=replace_with_existing_proxy_network
+PROXY_NETWORK=luxengine-edge
+TRAEFIK_CERTRESOLVER=mytlschallenge
 ```
 
-For Hostinger Docker Manager's default Traefik project, the network is normally `traefik-proxy`. Confirm it from `docker inspect`; do not rely only on the name. The override already includes Hostinger-compatible Traefik routers for all three LuxEngine hostnames. Its defaults are:
-
-```text
-TRAEFIK_ENTRYPOINT=websecure
-TRAEFIK_CERTRESOLVER=letsencrypt
-```
-
-Only add those two optional lines to `proxy-network.env` if your existing Traefik project uses different names.
+If your existing Traefik labels use a different resolver, use that exact value instead of `mytlschallenge`. The LuxEngine override creates separate `web` HTTP-redirect routers and `websecure` TLS routers.
 
 The update script will automatically include `compose.proxy-network.yml`. On that shared network, configure the existing proxy to target:
 
 - `luxengine-web:3000` for `luxengine.io` and `www.luxengine.io`;
 - `luxengine-proxy:8082` for `proxy.luxengine.io`.
 
-Do not publish a second reverse proxy on ports 80/443. Hostinger Traefik reads the included labels automatically. If you explicitly installed Nginx Proxy Manager instead, its container ignores the Traefik labels; create two Proxy Hosts and request certificates in its UI.
+Do not publish a second reverse proxy on ports 80/443. Hostinger Traefik reads the included labels automatically. If you explicitly installed Nginx Proxy Manager instead, attach its service to the same external `luxengine-edge` network; its container ignores the Traefik labels, so create two Proxy Hosts and request certificates in its UI.
 
 ## 11. Validate and build the LuxEngine stack
 

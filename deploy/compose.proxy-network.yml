@@ -3,10 +3,15 @@ services:
     labels:
       traefik.enable: "true"
       traefik.docker.network: ${PROXY_NETWORK}
+      traefik.http.middlewares.luxengine-https-redirect.redirectscheme.scheme: https
+      traefik.http.middlewares.luxengine-https-redirect.redirectscheme.permanent: "true"
+      traefik.http.routers.luxengine-web-http.rule: Host(`luxengine.io`) || Host(`www.luxengine.io`)
+      traefik.http.routers.luxengine-web-http.entrypoints: web
+      traefik.http.routers.luxengine-web-http.middlewares: luxengine-https-redirect@docker
       traefik.http.routers.luxengine-web.rule: Host(`luxengine.io`) || Host(`www.luxengine.io`)
-      traefik.http.routers.luxengine-web.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.luxengine-web.entrypoints: websecure
       traefik.http.routers.luxengine-web.tls: "true"
-      traefik.http.routers.luxengine-web.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      traefik.http.routers.luxengine-web.tls.certresolver: ${TRAEFIK_CERTRESOLVER:?set in /etc/luxengine/proxy-network.env}
       traefik.http.services.luxengine-web.loadbalancer.server.port: "3000"
     networks:
       default: {}
@@ -18,10 +23,13 @@ services:
     labels:
       traefik.enable: "true"
       traefik.docker.network: ${PROXY_NETWORK}
+      traefik.http.routers.luxengine-proxy-http.rule: Host(`proxy.luxengine.io`)
+      traefik.http.routers.luxengine-proxy-http.entrypoints: web
+      traefik.http.routers.luxengine-proxy-http.middlewares: luxengine-https-redirect@docker
       traefik.http.routers.luxengine-proxy.rule: Host(`proxy.luxengine.io`)
-      traefik.http.routers.luxengine-proxy.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.luxengine-proxy.entrypoints: websecure
       traefik.http.routers.luxengine-proxy.tls: "true"
-      traefik.http.routers.luxengine-proxy.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      traefik.http.routers.luxengine-proxy.tls.certresolver: ${TRAEFIK_CERTRESOLVER:?set in /etc/luxengine/proxy-network.env}
       traefik.http.services.luxengine-proxy.loadbalancer.server.port: "8082"
     networks:
       default: {}
