@@ -107,6 +107,7 @@ test("Hostinger containers stay behind the TLS reverse proxy", () => {
   );
   expect(guide).toContain("PROXY_NETWORK=luxengine-edge");
   expect(guide).toContain("TRAEFIK_CERTRESOLVER=mytlschallenge");
+  expect(guide).toContain("traefik.docker.network=root_default");
   expect(guide).toContain("do not add public rules for 3000 or 8082");
 
   const updater = source("../deploy/update-hostinger.sh");

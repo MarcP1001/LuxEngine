@@ -224,6 +224,18 @@ services:
       - luxengine-edge
 ```
 
+Because Traefik will now have two networks, add this label to the existing `n8n` service's `labels` list so Traefik always reaches n8n through its original network:
+
+```yaml
+services:
+  n8n:
+    # Keep all existing n8n settings and labels.
+    labels:
+      - traefik.docker.network=root_default
+```
+
+Keep the other existing n8n labels in the same list. Do not replace the list with only this line.
+
 Merge this into the single top-level `networks` section at the bottom of the file. Do not create a second `networks` key:
 
 ```yaml
@@ -244,7 +256,7 @@ sudo docker inspect root-n8n-1 \
   --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}'
 ```
 
-Traefik should list both `root_default` and `luxengine-edge`; n8n should list only `root_default`.
+Traefik should list both `root_default` and `luxengine-edge`; n8n should list only `root_default`. Confirm `https://n8n.aileaper.com` still returns HTTP 200 before deploying LuxEngine.
 
 Create the LuxEngine proxy-network environment file:
 
