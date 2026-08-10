@@ -4,6 +4,8 @@
 .vscode
 .venv
 venv
+.uv-cache
+.uv-python
 __pycache__
 *.pyc
 *.pyo
@@ -15,6 +17,13 @@ server.log
 *.png
 *.yml
 *.log
+.env
+.env.*
+!.env.example
+github-main
+lux-engine
+test-results
+playwright-report
 node_modules
 dist-electron
 electron

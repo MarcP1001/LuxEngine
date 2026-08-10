@@ -1,0 +1,20 @@
+services:
+  web:
+    networks:
+      default: {}
+      edge:
+        aliases:
+          - luxengine-web
+
+  proxy:
+    networks:
+      default: {}
+      edge:
+        aliases:
+          - luxengine-proxy
+
+networks:
+  default: {}
+  edge:
+    external: true
+    name: ${PROXY_NETWORK:?set in /etc/luxengine/proxy-network.env}

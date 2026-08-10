@@ -67,29 +67,60 @@ test.describe("backend security contracts", () => {
 
 test("Docker installs only after every required package input is copied", () => {
   const dockerfile = source("../Dockerfile");
-  const installPosition = dockerfile.indexOf("pip install --no-cache-dir .");
-
-  expect(installPosition).toBeGreaterThan(
-    dockerfile.indexOf("COPY .env.example"),
+  const installPosition = dockerfile.indexOf(
+    "uv sync --frozen --no-dev --no-editable",
   );
+
+  expect(installPosition).toBeGreaterThan(dockerfile.indexOf(".env.example"));
   expect(installPosition).toBeGreaterThan(dockerfile.indexOf("COPY providers"));
-  expect(dockerfile).not.toContain("pip install --no-cache-dir -e .");
+  expect(dockerfile).toContain("COPY pyproject.toml uv.lock");
+  expect(dockerfile).not.toContain("pip install");
 });
 
-test("Hostinger services stay behind the TLS reverse proxy", () => {
-  const webService = source("../deploy/lux-engine-web.service");
-  const proxyService = source("../deploy/free-claude-code.service");
+test("Hostinger containers stay behind the TLS reverse proxy", () => {
+  const compose = source("../deploy/compose.yml");
+  const networkOverride = source("../deploy/compose.proxy-network.yml");
   const nginx = source("../deploy/nginx-luxengine.conf");
   const guide = source("../deploy/hostinger-kvm2.md");
 
-  expect(webService).toContain("start --hostname 127.0.0.1 --port 3000");
-  expect(proxyService).toContain("Environment=HOST=127.0.0.1");
+  expect(compose).toContain('"127.0.0.1:3000:3000"');
+  expect(compose).toContain('"127.0.0.1:8082:8082"');
+  expect(compose).toContain("no-new-privileges:true");
+  expect(compose).toContain("cap_drop:");
+  expect(networkOverride).toContain("${PROXY_NETWORK:?");
+  expect(networkOverride).toContain("luxengine-web");
+  expect(networkOverride).toContain("luxengine-proxy");
   expect(nginx).toContain("server_name luxengine.io www.luxengine.io;");
   expect(nginx).toContain("server_name proxy.luxengine.io;");
   expect(nginx).toContain("proxy_pass http://127.0.0.1:3000;");
   expect(nginx).toContain("proxy_pass http://127.0.0.1:8082;");
-  expect(guide).toContain("Do not add rules for 3000 or 8082.");
+  expect(guide).toContain(
+    "Do not combine the n8n and LuxEngine Compose files.",
+  );
+  expect(guide).toContain("do not add public rules for 3000 or 8082");
 
   const updater = source("../deploy/update-hostinger.sh");
-  expect(updater).toContain("npm audit --omit=dev --audit-level=critical");
+  expect(updater).toContain("docker compose");
+  expect(updater).toContain("COMPOSE_PARALLEL_LIMIT=1");
+  expect(updater).not.toContain("systemctl restart");
+});
+
+test("production images use non-root users and exclude local secrets", () => {
+  const proxyDockerfile = source("../Dockerfile");
+  const proxyDockerignore = source("../.dockerignore");
+  const webDockerfile = source("Dockerfile");
+  const webDockerignore = source(".dockerignore");
+  const nextConfig = source("next.config.ts");
+
+  expect(proxyDockerfile).toContain(
+    "apt-get install -y --no-install-recommends claude-code",
+  );
+  expect(proxyDockerfile).toContain("--uid 10001");
+  expect(proxyDockerfile).toContain("USER luxengine");
+  expect(webDockerfile).toContain("FROM node:22-alpine AS runner");
+  expect(webDockerfile).toContain("USER luxengine");
+  expect(webDockerfile).not.toContain("ARG CLERK_SECRET_KEY");
+  expect(nextConfig).toContain('output: "standalone"');
+  expect(proxyDockerignore).toContain(".env.*");
+  expect(webDockerignore).toContain(".env.*");
 });

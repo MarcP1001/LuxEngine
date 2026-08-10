@@ -34,18 +34,20 @@ npx playwright test
 ## Production
 
 Deploy the backend first with `npx convex deploy`, use its production URL for
-`NEXT_PUBLIC_CONVEX_URL`, then build and run the Next.js application:
+`NEXT_PUBLIC_CONVEX_URL`, then build and run the repository's Docker Compose
+stack:
 
 ```bash
-npm ci
-npm run build
-npm start -- --hostname 127.0.0.1 --port 3000
+docker compose \
+  --env-file /etc/luxengine/web.env \
+  --file ../deploy/compose.yml \
+  up --detach --build --wait
 ```
 
 The application must sit behind an HTTPS reverse proxy. See
-`../deploy/hostinger-kvm2.md` for the complete Hostinger VPS setup, service
-units, environment variables, firewall rules, Nginx configuration, and
-verification steps.
+`../deploy/hostinger-kvm2.md` for the complete Hostinger VPS setup alongside an
+existing n8n Docker installation, including environment variables, firewall
+rules, reverse-proxy alternatives, and verification steps.
 
 The repository-level Hostinger guide deploys both this web application and the
 Python proxy service. The included `/api/health` endpoint is intended for local

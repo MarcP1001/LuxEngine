@@ -90,3 +90,36 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  container-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      NEXT_PUBLIC_CONVEX_URL: https://ci-placeholder.convex.cloud
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2ktcGxhY2Vob2xkZXIuZXhhbXBsZS5jb20k
+      NEXT_PUBLIC_CANONICAL_HOST: luxengine.io
+      WEB_ENV_FILE: /dev/null
+      PROXY_ENV_FILE: /dev/null
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 1
+
+      - name: Validate Docker Compose
+        run: docker compose --file deploy/compose.yml config --quiet
+
+      - name: Build web image
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_CONVEX_URL \
+            --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY \
+            --build-arg NEXT_PUBLIC_CANONICAL_HOST \
+            --tag luxengine-web:ci \
+            lux-engine
+
+      - name: Build proxy image
+        run: docker build --tag luxengine-proxy:ci .
