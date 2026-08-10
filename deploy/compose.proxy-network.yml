@@ -1,5 +1,13 @@
 services:
   web:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PROXY_NETWORK}
+      traefik.http.routers.luxengine-web.rule: Host(`luxengine.io`) || Host(`www.luxengine.io`)
+      traefik.http.routers.luxengine-web.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.luxengine-web.tls: "true"
+      traefik.http.routers.luxengine-web.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      traefik.http.services.luxengine-web.loadbalancer.server.port: "3000"
     networks:
       default: {}
       edge:
@@ -7,6 +15,14 @@ services:
           - luxengine-web
 
   proxy:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PROXY_NETWORK}
+      traefik.http.routers.luxengine-proxy.rule: Host(`proxy.luxengine.io`)
+      traefik.http.routers.luxengine-proxy.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.luxengine-proxy.tls: "true"
+      traefik.http.routers.luxengine-proxy.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      traefik.http.services.luxengine-proxy.loadbalancer.server.port: "8082"
     networks:
       default: {}
       edge:

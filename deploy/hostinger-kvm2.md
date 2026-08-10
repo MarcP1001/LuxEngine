@@ -46,7 +46,7 @@ sudo docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}' \
   | grep -E '0\.0\.0\.0:(80|443)|\[::\]:(80|443)'
 ```
 
-Use **Path B: container reverse proxy** for Nginx Proxy Manager, Traefik, or Caddy.
+Use **Path B: Hostinger container reverse proxy** for Docker Manager's Traefik template or Nginx Proxy Manager. This guide does not assume or install Caddy.
 
 - If nothing owns ports 80/443, use Path A and install Nginx.
 
@@ -194,7 +194,7 @@ No additional Compose configuration is needed. LuxEngine remains reachable by ho
 
 Continue to step 11, then configure Nginx in step 13A.
 
-### Path B: a container proxy owns ports 80/443
+### Path B: Hostinger Traefik or Nginx Proxy Manager owns ports 80/443
 
 Find the external Docker network used by that reverse proxy:
 
@@ -216,12 +216,21 @@ Add exactly one line:
 PROXY_NETWORK=replace_with_existing_proxy_network
 ```
 
+For Hostinger Docker Manager's default Traefik project, the network is normally `traefik-proxy`. Confirm it from `docker inspect`; do not rely only on the name. The override already includes Hostinger-compatible Traefik routers for all three LuxEngine hostnames. Its defaults are:
+
+```text
+TRAEFIK_ENTRYPOINT=websecure
+TRAEFIK_CERTRESOLVER=letsencrypt
+```
+
+Only add those two optional lines to `proxy-network.env` if your existing Traefik project uses different names.
+
 The update script will automatically include `compose.proxy-network.yml`. On that shared network, configure the existing proxy to target:
 
 - `luxengine-web:3000` for `luxengine.io` and `www.luxengine.io`;
 - `luxengine-proxy:8082` for `proxy.luxengine.io`.
 
-Do not publish a second reverse proxy on ports 80/443. For Nginx Proxy Manager, create two Proxy Hosts and request certificates in its UI. For Traefik or Caddy, add routers/sites using the same targets and existing certificate mechanism.
+Do not publish a second reverse proxy on ports 80/443. Hostinger Traefik reads the included labels automatically. If you explicitly installed Nginx Proxy Manager instead, its container ignores the Traefik labels; create two Proxy Hosts and request certificates in its UI.
 
 ## 11. Validate and build the LuxEngine stack
 
@@ -335,9 +344,9 @@ sudo systemctl enable --now certbot.timer
 sudo certbot renew --dry-run
 ```
 
-## 13B. Configure the existing container reverse proxy (Path B only)
+## 13B. Configure the Hostinger container reverse proxy (Path B only)
 
-Use the reverse proxy's existing management method and certificate storage. Create:
+For Hostinger Traefik, the included labels create the routes and request certificates automatically. Verify them in the Traefik logs. For Nginx Proxy Manager, create these targets in its UI:
 
 | Public hostname      | Internal target               |
 | -------------------- | ----------------------------- |

@@ -90,6 +90,10 @@ test("Hostinger containers stay behind the TLS reverse proxy", () => {
   expect(networkOverride).toContain("${PROXY_NETWORK:?");
   expect(networkOverride).toContain("luxengine-web");
   expect(networkOverride).toContain("luxengine-proxy");
+  expect(networkOverride).toContain("traefik.http.routers.luxengine-web.rule");
+  expect(networkOverride).toContain(
+    "traefik.http.routers.luxengine-proxy.rule",
+  );
   expect(nginx).toContain("server_name luxengine.io www.luxengine.io;");
   expect(nginx).toContain("server_name proxy.luxengine.io;");
   expect(nginx).toContain("proxy_pass http://127.0.0.1:3000;");
@@ -97,6 +101,7 @@ test("Hostinger containers stay behind the TLS reverse proxy", () => {
   expect(guide).toContain(
     "Do not combine the n8n and LuxEngine Compose files.",
   );
+  expect(guide).toContain("This guide does not assume or install Caddy.");
   expect(guide).toContain("do not add public rules for 3000 or 8082");
 
   const updater = source("../deploy/update-hostinger.sh");
