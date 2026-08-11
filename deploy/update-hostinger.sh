@@ -2,10 +2,13 @@
 set -Eeuo pipefail
 
 APP_ROOT="/opt/luxengine"
-WEB_ROOT="${APP_ROOT}/lux-engine"
 SERVICE_USER="luxengine"
-UV_BIN="/home/${SERVICE_USER}/.local/bin/uv"
 DEPLOY_REF="${LUXENGINE_REF:-main}"
+COMPOSE_FILE="${APP_ROOT}/deploy/compose.yml"
+COMPOSE_ARGS=(
+  --env-file /etc/luxengine/web.env
+  --file "${COMPOSE_FILE}"
+)
 
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run this script with sudo." >&2
@@ -19,6 +22,13 @@ for required_file in /etc/luxengine/web.env /etc/luxengine/proxy.env; do
   fi
 done
 
+if [[ -f /etc/luxengine/proxy-network.env ]]; then
+  COMPOSE_ARGS+=(
+    --env-file /etc/luxengine/proxy-network.env
+    --file "${APP_ROOT}/deploy/compose.proxy-network.yml"
+  )
+fi
+
 runuser -u "${SERVICE_USER}" -- git -C "${APP_ROOT}" fetch --prune origin
 if [[ "${DEPLOY_REF}" == "main" ]]; then
   runuser -u "${SERVICE_USER}" -- git -C "${APP_ROOT}" checkout main
@@ -27,14 +37,13 @@ else
   runuser -u "${SERVICE_USER}" -- git -C "${APP_ROOT}" checkout --detach "${DEPLOY_REF}"
 fi
 
-runuser -u "${SERVICE_USER}" -- "${UV_BIN}" sync \
-  --project "${APP_ROOT}" --python 3.14 --no-dev
-
-runuser -u "${SERVICE_USER}" -- bash -c \
-  "set -a; source /etc/luxengine/web.env; set +a; cd '${WEB_ROOT}'; npm ci; npm audit --omit=dev --audit-level=critical; npm run build"
-
-systemctl restart free-claude-code.service lux-engine-web.service
-systemctl --no-pager --full status free-claude-code.service lux-engine-web.service
+COMPOSE_PARALLEL_LIMIT=1 docker compose \
+  "${COMPOSE_ARGS[@]}" \
+  build --pull
+docker compose \
+  "${COMPOSE_ARGS[@]}" \
+  up --detach --remove-orphans --wait
+docker compose "${COMPOSE_ARGS[@]}" ps
 
 curl --fail --silent --show-error http://127.0.0.1:8082/health >/dev/null
 curl --fail --silent --show-error http://127.0.0.1:3000/api/health >/dev/null

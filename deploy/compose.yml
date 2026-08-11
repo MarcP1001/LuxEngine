@@ -1,0 +1,53 @@
+name: luxengine
+
+services:
+  web:
+    image: luxengine-web:local
+    build:
+      context: ../lux-engine
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_CONVEX_URL: ${NEXT_PUBLIC_CONVEX_URL:?set in /etc/luxengine/web.env}
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:?set in /etc/luxengine/web.env}
+        NEXT_PUBLIC_CANONICAL_HOST: ${NEXT_PUBLIC_CANONICAL_HOST:-luxengine.io}
+    restart: unless-stopped
+    env_file:
+      - ${WEB_ENV_FILE:-/etc/luxengine/web.env}
+    ports:
+      - "127.0.0.1:3000:3000"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
+
+  proxy:
+    image: luxengine-proxy:local
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ${PROXY_ENV_FILE:-/etc/luxengine/proxy.env}
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8082"
+      HOME: /home/luxengine
+      CLAUDE_CLI_BIN: /usr/bin/claude
+      CLAUDE_WORKSPACE: /workspace
+    ports:
+      - "127.0.0.1:8082:8082"
+    volumes:
+      - /var/lib/luxengine/agent_workspace:/workspace
+      - /var/lib/luxengine/service-home:/home/luxengine
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
