@@ -20,11 +20,19 @@ export const getOrCreateUser = mutation({
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
-    if (existing) return publicUser(existing);
+    const email = identity.email?.trim().toLowerCase();
+
+    if (existing) {
+      if (email && existing.email !== email) {
+        await ctx.db.patch(existing._id, { email });
+        return publicUser({ ...existing, email });
+      }
+      return publicUser(existing);
+    }
 
     const userId = await ctx.db.insert("users", {
       clerkId: identity.subject,
-      email: identity.email ?? undefined,
+      email,
       onboardingComplete: false,
       createdAt: Date.now(),
     });
