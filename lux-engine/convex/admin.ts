@@ -160,7 +160,10 @@ export const getAllUsers = query({
         clerkId: user.clerkId,
         agentId: user.agentId,
         mlsName: user.mlsName,
-        role: user.role,
+        role:
+          user.email && superadminEmails().has(user.email.toLowerCase())
+            ? "superadmin"
+            : user.role,
         onboardingComplete: user.onboardingComplete,
         createdAt: user.createdAt,
         brokerageName,

@@ -63,6 +63,18 @@ test.describe("backend security contracts", () => {
     expect(brokerages).not.toContain("export const getBrokerageById = query");
     expect(brokerages).toContain("existingUser.brokerageId !== brokerage._id");
   });
+
+  test("existing users synchronize email claims and superadmins are labeled", () => {
+    const users = source("convex/users.ts");
+    const admin = source("convex/admin.ts");
+
+    expect(users).toContain("existing.email !== email");
+    expect(users).toContain("await ctx.db.patch(existing._id, { email })");
+    expect(admin).toContain(
+      "user.email && superadminEmails().has(user.email.toLowerCase())",
+    );
+    expect(admin).toContain('? "superadmin"');
+  });
 });
 
 test("Docker installs only after every required package input is copied", () => {
